@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.entities.Book;
 import com.example.demo.repository.BookRepository;
+import com.example.demo.services.NotificationService;
 
 
 @RestController
@@ -34,10 +36,18 @@ public class BookController
 		}
 		return(List<Book>) bookRepo.findAll();
 	}
+	
+	
+	@Autowired
+	NotificationService notificationService;
 
 	@RequestMapping(value="/books",method=RequestMethod.POST )
 	public ResponseEntity<Book> createBook(@RequestBody Book booksToBeCreated)
 	{
+//		NotificationService notificationService=new NotificationService("host", "port", "email", "password");
+		
+		notificationService.sendEmail("sendTo", "subject", "message");
+		
 		
 		Book newlyCreatedBook=bookRepo.save(booksToBeCreated);
 		
@@ -47,7 +57,7 @@ public class BookController
 		
 	}
 	
-	
+	@Secured("ROLES_admin")
 	@GetMapping("/books/findbytitle/{titlefromhere}")
 	public List<Book> getByTitle(@PathVariable(name="titlefromhere") String title)
 	{
